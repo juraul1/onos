@@ -1,5 +1,8 @@
 COMPILE_DEPS = CORE_DEPS + [
     "//drivers/p4runtime:onos-drivers-p4runtime",
+    "//protocols/gnmi/stub:onos-protocols-gnmi-stub",
+    "//protocols/gnmi/api:onos-protocols-gnmi-api",
+    "//protocols/grpc/utils:onos-protocols-grpc-utils",
 ]
 
 BUNDLES = [
