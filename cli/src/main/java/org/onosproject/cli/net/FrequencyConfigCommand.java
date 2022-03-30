@@ -70,7 +70,7 @@ public class FrequencyConfigCommand extends AbstractShellCommand {
             }
         } else if (operation.equals("set")) {
             checkNotNull(value);
-            setSfpFrequency(portName, value);
+            frequencyConfig.setSfpFrequency(portName, value);
             print("Set %f frequency (GHz) on port %s", value, portName);
         } else {
             print("Operation %s are not supported now.", operation);
