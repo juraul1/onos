@@ -58,7 +58,7 @@ public class GnmiTofinoTerminalDeviceFrequencyConfig
 
     private static final Logger log = LoggerFactory.getLogger(GnmiTofinoTerminalDeviceFrequencyConfig.class);
 
-    public GnmiTerminalDeviceFlowRuleProgrammable() {
+    public GnmiTofinoTerminalDeviceFrequencyConfig() {
         super(GnmiController.class);
     }
 
@@ -101,7 +101,7 @@ public class GnmiTofinoTerminalDeviceFrequencyConfig
         Gnmi.Path path = GnmiPathBuilder.newBuilder()
                 .addElem("interfaces")
                 .addElem("interface").withKeyValue("name", portName)
-                .addElem("config)
+                .addElem("config")
                 .addElem("sfp-frequency")
                 .build();
 

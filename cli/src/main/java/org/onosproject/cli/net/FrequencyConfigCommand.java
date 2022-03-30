@@ -61,13 +61,9 @@ public class FrequencyConfigCommand extends AbstractShellCommand {
 
     @Override
     protected void doExecute() throws Exception {
-
-        Device device = deviceService.getDevice(cp.deviceId());
-        PowerConfig powerConfig = device.as(PowerConfig.class);
-        // FIXME the parameter "component" equals NULL now, because there is one-to-one mapping between
-        //  <component> and <optical-channel>.
-        if (operation.equals("get")) {
-            Optional<Double> val = getSfpFrequency(portName);
+        FrequencyConfig frequencyConfig = get(FrequencyConfig.class);
+	if (operation.equals("get")) {
+            Optional<Double> val = frequencyConfig.getSfpFrequency(portName);
             if (val.isPresent()) {
                 print("The frequency value in port %s is %f.",
                         portName, val);
