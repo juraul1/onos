@@ -25,10 +25,12 @@
 
     <driver name="stratum-tofino" manufacturer="Barefoot Networks"
             hwVersion="Tofino" swVersion="Stratum" extends="stratum">
-        <behaviour api="org.onosproject.net.behaviour.PiPipelineProgrammable"
+        <behaviour api="org.onosproject.net.behaviour.FrequencyConfig"
+                   impl="org.onosproject.drivers.barefoot.GnmiTofinoTerminalDeviceFrequencyConfig"/>
+<!--    <behaviour api="org.onosproject.net.behaviour.PiPipelineProgrammable"
                    impl="org.onosproject.drivers.barefoot.TofinoPipelineProgrammable"/>
         <behaviour api="org.onosproject.net.meter.MeterProgrammable"
-                   impl="org.onosproject.drivers.barefoot.TofinoMeterProgrammable"/>
+		impl="org.onosproject.drivers.barefoot.TofinoMeterProgrammable"/> -->
         <property name="tableReadCountersWithTableEntries">true</property>
     </driver>
 

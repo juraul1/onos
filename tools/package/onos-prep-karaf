@@ -19,7 +19,7 @@ ONOS_SECURITY_MODE="false"
 PREFIX="onos-$ONOS_VERSION"
 
 # Unroll the Apache Karaf bits, prune them and make ONOS top-level directories.
-tar xf $KARAF_TAR
+tar xf $KARAF_TAR --no-same-owner
 
 # rename path name to match what was distributed with vicci
 # mv "$(ls -d apache*)" "apache-karaf-$KARAF_VERSION" || true
