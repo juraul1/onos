@@ -35,7 +35,7 @@ import java.util.Optional;
  */
 
 @Beta
-public interface FrequencyConfig<T> extends HandlerBehaviour {
+public interface FrequencyConfig extends HandlerBehaviour {
 
     /**
      * Set the SFP frequency of a tunable SFP+.
@@ -43,7 +43,7 @@ public interface FrequencyConfig<T> extends HandlerBehaviour {
      * @param portName the port name
      * @param freq the frequency to be set
      */
-    boolean setSfpFrequency(String portName, Frequency freq);
+    boolean setSfpFrequency(String portName, Double freq);
 
     /**
      * Get the SFP frequency of a SFP+.

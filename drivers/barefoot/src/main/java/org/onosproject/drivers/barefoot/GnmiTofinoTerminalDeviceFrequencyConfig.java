@@ -19,19 +19,11 @@ package org.onosproject.drivers.barefoot;
 import com.google.common.collect.ImmutableList;
 import gnmi.Gnmi;
 import org.onlab.util.Frequency;
-import org.onosproject.drivers.odtn.impl.DeviceConnectionCache;
-import org.onosproject.drivers.odtn.impl.FlowRuleParser;
 import org.onosproject.gnmi.api.GnmiClient;
 import org.onosproject.gnmi.api.GnmiController;
 import org.onosproject.gnmi.api.GnmiUtils.GnmiPathBuilder;
 import org.onosproject.grpc.utils.AbstractGrpcHandlerBehaviour;
-import org.onosproject.net.Port;
-import org.onosproject.net.PortNumber;
-import org.onosproject.net.device.DeviceService;
-import org.onosproject.net.flow.DefaultFlowEntry;
-import org.onosproject.net.flow.FlowEntry;
-import org.onosproject.net.flow.FlowRule;
-import org.onosproject.net.flow.FlowRuleProgrammable;
+import org.onosproject.net.behaviour.FrequencyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.lang.*;
 
 
 /**
@@ -54,7 +47,7 @@ import java.util.concurrent.ExecutionException;
 
 public class GnmiTofinoTerminalDeviceFrequencyConfig
         extends AbstractGrpcHandlerBehaviour<GnmiClient, GnmiController>
-        implements FrequencyConfig<T> {
+        implements FrequencyConfig {
 
     private static final Logger log = LoggerFactory.getLogger(GnmiTofinoTerminalDeviceFrequencyConfig.class);
 
@@ -62,8 +55,8 @@ public class GnmiTofinoTerminalDeviceFrequencyConfig
         super(GnmiController.class);
     }
 
-    @Override
-    private boolean setSfpFrequency(String portName, Frequency freq) {
+    // @Override
+    public boolean setSfpFrequency(String portName, Double freq) {
         // gNMI set
         // /interfaces/interface[name=portName]/config/sfp-frequency
         Gnmi.Path path = GnmiPathBuilder.newBuilder()
@@ -73,7 +66,7 @@ public class GnmiTofinoTerminalDeviceFrequencyConfig
                 .addElem("sfp-frequency")
                 .build();
         Gnmi.TypedValue val = Gnmi.TypedValue.newBuilder()
-                .setUintVal((long) freq.asGHz())
+                .setUintVal(freq.longValue())
                 .build();
         Gnmi.Update update = Gnmi.Update.newBuilder()
                 .setPath(path)
@@ -92,7 +85,7 @@ public class GnmiTofinoTerminalDeviceFrequencyConfig
         return false;
     }
 
-    @Override
+    // @Override
     public Optional<Double> getSfpFrequency(String portName) {
         // Get value from path
         // /interfaces/interface[name=portName]/config/sfp-frequency
@@ -123,11 +116,21 @@ public class GnmiTofinoTerminalDeviceFrequencyConfig
             return Optional.empty();
         }
         Gnmi.Update update = resp.getNotification(0).getUpdate(0);
-        Gnmi.TypedValue frequencyVal = update.getVal();
-        if (frequencyVal == 0) {
-            log.warn("No frequency set or not a tunable transceiver");
-            return Optional.empty();
+        //Gnmi.TypedValue frequencyVal = update.getVal();
+        Gnmi.Decimal64 frequencyVal = update.getVal().getDecimalVal();
+        //if (frequencyVal == null) {
+        //    log.warn("No frequency set or not a tunable transceiver");
+        //    return Optional.empty();
+        //}
+        //return Optional.of(frequencyVal);
+        return Optional.of(decimal64ToDouble(frequencyVal));
+    }
+
+    private Double decimal64ToDouble(Gnmi.Decimal64 value) {
+        double result = value.getDigits();
+        if (value.getPrecision() != 0) {
+            result = result / Math.pow(10, value.getPrecision());
         }
-        return Optional.of(frequencyVal);
+        return result;
     }
 }
