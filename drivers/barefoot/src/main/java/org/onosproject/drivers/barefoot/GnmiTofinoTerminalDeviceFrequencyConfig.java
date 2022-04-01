@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.lang.*;
+import java.io.*;
 
 
 /**
@@ -59,6 +60,9 @@ public class GnmiTofinoTerminalDeviceFrequencyConfig
     public boolean setSfpFrequency(String portName, Double freq) {
         // gNMI set
         // /interfaces/interface[name=portName]/config/sfp-frequency
+        if (!setupBehaviour("setSfpFrequency")) {
+            return false;
+        }
         Gnmi.Path path = GnmiPathBuilder.newBuilder()
                 .addElem("interfaces")
                 .addElem("interface").withKeyValue("name", portName)
@@ -86,17 +90,19 @@ public class GnmiTofinoTerminalDeviceFrequencyConfig
     }
 
     // @Override
-    public Optional<Double> getSfpFrequency(String portName) {
+    public long getSfpFrequency(String portName) {
         // Get value from path
         // /interfaces/interface[name=portName]/config/sfp-frequency
-
+        if (!setupBehaviour("getSfpFrequency")) {
+            return 0;
+        }
         // Query operational mode from device
         Gnmi.Path path = GnmiPathBuilder.newBuilder()
                 .addElem("interfaces")
                 .addElem("interface").withKeyValue("name", portName)
                 .addElem("config")
-                        .addElem("sfp-frequency")
-                        .build();
+                .addElem("sfp-frequency")
+                .build();
         Gnmi.GetRequest req = Gnmi.GetRequest.newBuilder()
                 .addPath(path)
                 .setEncoding(Gnmi.Encoding.PROTO)
@@ -107,27 +113,32 @@ public class GnmiTofinoTerminalDeviceFrequencyConfig
         } catch (ExecutionException | InterruptedException e) {
             log.warn("Unable to get frequency for port {}",
                     portName);
-            return Optional.empty();
+            return 0;
         }
-        // Get operational mode value from gNMI get response
+        // Get frequency value from gNMI get response
         // Here we assume we get only one response
         if (resp.getNotificationCount() == 0 || resp.getNotification(0).getUpdateCount() == 0) {
             log.warn("No update message found");
-            return Optional.empty();
+            return 0;
         }
         Gnmi.Update update = resp.getNotification(0).getUpdate(0);
-        //Gnmi.TypedValue frequencyVal = update.getVal();
-        Gnmi.Decimal64 frequencyVal = update.getVal().getDecimalVal();
-        //if (frequencyVal == null) {
-        //    log.warn("No frequency set or not a tunable transceiver");
-        //    return Optional.empty();
-        //}
-        //return Optional.of(frequencyVal);
-        return Optional.of(decimal64ToDouble(frequencyVal));
+        Gnmi.TypedValue frequencyVal = update.getVal();
+        //Gnmi.uint64 frequencyVal = update.getVal().GetUintVal();
+        //Gnmi.Decimal64 frequencyVal = update.getVal().getDecimalVal();
+        if (frequencyVal == null) {
+            log.warn("No frequency set or not a tunable transceiver");
+            return 0;
+        }
+        long frequency = frequencyVal.getUintVal();
+        return frequency;
+        //return Optional.of(frequencyVal.getUintVal());
+        //return Optional.of(decimal64ToDouble(frequencyVal));
     }
 
     private Double decimal64ToDouble(Gnmi.Decimal64 value) {
+        System.out.println("decimal64 value: " + value);
         double result = value.getDigits();
+        System.out.printf("double result: %f",result);
         if (value.getPrecision() != 0) {
             result = result / Math.pow(10, value.getPrecision());
         }

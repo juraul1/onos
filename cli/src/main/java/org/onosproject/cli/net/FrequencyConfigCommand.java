@@ -51,22 +51,38 @@ public class FrequencyConfigCommand extends AbstractShellCommand {
     @Completion(GnmiOperationCompleter.class)
     private String operation = null;
 
-    @Argument(index = 1, name = "port name", description = "Port name",
+    @Argument(index = 1, name = "connection point", description = "{DeviceID}/{PortNumber}",
+            required = true, multiValued = false)
+    @Completion(OpticalConnectPointCompleter.class)
+    private String connectPoint = null;
+
+    @Argument(index = 2, name = "port name", description = "Port name",
             required = true, multiValued = false)
     private String portName = null;
 
-    @Argument(index = 2, name = "value", description = "frequency value. Unit: GHz",
+    @Argument(index = 3, name = "value", description = "frequency value. Unit: GHz",
             required = false, multiValued = false)
     private Double value = null;
 
     @Override
     protected void doExecute() throws Exception {
-        FrequencyConfig frequencyConfig = get(FrequencyConfig.class);
+        DeviceService deviceService = get(DeviceService.class);
+        ConnectPoint cp = ConnectPoint.deviceConnectPoint(connectPoint);
+        //Port port = deviceService.getPort(cp);
+        //if (port == null) {
+        //    print("[WARNING] %s does not exist", cp);
+        //}
+        Device device = deviceService.getDevice(cp.deviceId());
+        FrequencyConfig frequencyConfig = device.as(FrequencyConfig.class);
         if (operation.equals("get")) {
-            Optional<Double> val = frequencyConfig.getSfpFrequency(portName);
-            if (val.isPresent()) {
-                print("The frequency value in port %s is %f.",
+            long val = frequencyConfig.getSfpFrequency(portName);
+            if (val != 0) {
+                //double frequency = val.get();
+                print("The frequency value in port %s is %d.",
                         portName, val);
+            } else {
+                print("No value for frequency in port %s",
+                        portName);
             }
         } else if (operation.equals("set")) {
             checkNotNull(value);

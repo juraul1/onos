@@ -51,6 +51,6 @@ public interface FrequencyConfig extends HandlerBehaviour {
      * @param portName the port name
      * @return frequency in Hz
      */
-    Optional<Double> getSfpFrequency(String portName);
+    long getSfpFrequency(String portName);
 
 }
