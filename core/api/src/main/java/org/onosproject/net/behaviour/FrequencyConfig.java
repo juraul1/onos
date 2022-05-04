@@ -53,4 +53,10 @@ public interface FrequencyConfig extends HandlerBehaviour {
      */
     long getSfpFrequency(String portName);
 
+
+    long getStartFrequency(PortNumber port, OchSignal signal);
+    long getEndFrequency(PortNumber port, OchSignal signal);
+    void setStartFrequency(PortNumber port, OchSignal signal, double startFreq);
+    void setEndFrequency(PortNumber port, OchSignal signal, double endFreq);
+
 }
