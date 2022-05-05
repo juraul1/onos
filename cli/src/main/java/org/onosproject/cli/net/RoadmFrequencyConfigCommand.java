@@ -26,9 +26,11 @@ import org.onosproject.net.ConnectPoint;
 import org.onosproject.net.Device;
 import org.onosproject.net.Direction;
 import org.onosproject.net.Port;
-import org.onosproject.net.behaviour.FrequencyConfig;
+import org.onosproject.net.behaviour.RoadmFrequencyConfig;
 import org.onosproject.net.device.DeviceService;
 import org.slf4j.Logger;
+import org.onosproject.net.OchSignal;
+import org.onosproject.net.OchSignalType;
 
 import java.util.Optional;
 
@@ -61,11 +63,15 @@ public class RoadmFrequencyConfigCommand extends AbstractShellCommand {
     @Completion(OpticalConnectPointCompleter.class)
     private String connectPoint = null;
 
-    @Argument(index = 2, name = "start-freq", description = "start-freq value. Unit: Hz",
+    @Argument(index = 2, name = "optical signal", description = "ptical signal",
+            required = true, multiValued = false)
+    private OchSignal ochsignal = null;
+
+    @Argument(index = 3, name = "start-freq", description = "start-freq value. Unit: Hz",
             required = false, multiValued = false)
     private Double startfreq = null;
 
-    @Argument(index = 3, name = "end-freq", description = "end-freq value. Unit: Hz",
+    @Argument(index = 4, name = "end-freq", description = "end-freq value. Unit: Hz",
             required = false, multiValued = false)
     private Double endfreq = null;
 
@@ -89,16 +95,16 @@ public class RoadmFrequencyConfigCommand extends AbstractShellCommand {
             return;
         }
         Device device = deviceService.getDevice(cp.deviceId());
-        FrequencyConfig frequencyConfig = device.as(FrequencyConfig.class);
+        RoadmFrequencyConfig roadmfrequencyConfig = device.as(RoadmFrequencyConfig.class);
         // FIXME the parameter "component" equals NULL now, because there is one-to-one mapping between
         //  <component> and <optical-channel>.
         if (operation.equals("get")) {
-            long startfreqval = frequencyConfig.getStartFrequency(cp.port(), Direction.ALL);
+            long startfreqval = roadmfrequencyConfig.getStartFrequency(cp.port(), ochsignal);
             if (startfreqval !=0) {
                 print("The start-freq value in port %s on device %s is %f.",
                         cp.port().toString(), cp.deviceId().toString(), startfreqval);
             }
-            long endfreqval = frequencyConfig.getEndFrequency(cp.port(), Direction.ALL);
+            long endfreqval = roadmfrequencyConfig.getEndFrequency(cp.port(), ochsignal);
             if (endfreqval !=0) {
                 print("The end-freq value in port %s on device %s is %f.",
                         cp.port().toString(), cp.deviceId().toString(), endfreqval);
@@ -106,8 +112,8 @@ public class RoadmFrequencyConfigCommand extends AbstractShellCommand {
         } else if (operation.equals("edit-config")) {
             checkNotNull(startfreq);
             checkNotNull(endfreq);
-            frequencyConfig.setStartFrequency(cp.port(), Direction.ALL, startfreq);
-            frequencyConfig.setEndFrequency(cp.port(), Direction.ALL, endfreq);
+            roadmfrequencyConfig.setStartFrequency(cp.port(), ochsignal, startfreq);
+            roadmfrequencyConfig.setEndFrequency(cp.port(), ochsignal, endfreq);
             print("Set %f start freq and %f end freq on port", startfreq, endfreq, connectPoint);
         } else {
             print("Operation %s are not supported now.", operation);

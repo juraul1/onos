@@ -23,6 +23,8 @@ import com.google.common.collect.Range;
 import org.onosproject.net.PortNumber;
 import org.onosproject.net.driver.HandlerBehaviour;
 import org.onlab.util.Frequency;
+import org.onosproject.net.OchSignal;
+import org.onosproject.net.OchSignalType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,22 +37,11 @@ import java.util.Optional;
  */
 
 @Beta
-public interface FrequencyConfig extends HandlerBehaviour {
+public interface RoadmFrequencyConfig extends HandlerBehaviour {
 
-    /**
-     * Set the SFP frequency of a tunable SFP+.
-     *
-     * @param portName the port name
-     * @param freq the frequency to be set
-     */
-    boolean setSfpFrequency(String portName, Double freq);
-
-    /**
-     * Get the SFP frequency of a SFP+.
-     *
-     * @param portName the port name
-     * @return frequency in Hz
-     */
-    long getSfpFrequency(String portName);
+    long getStartFrequency(PortNumber port, OchSignal signal);
+    long getEndFrequency(PortNumber port, OchSignal signal);
+    void setStartFrequency(PortNumber port, OchSignal signal, double startFreq);
+    void setEndFrequency(PortNumber port, OchSignal signal, double endFreq);
 
 }

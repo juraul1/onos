@@ -22,6 +22,7 @@ import org.onosproject.net.DeviceId;
 import org.onosproject.net.PortNumber;
 import org.onosproject.net.OchSignal;
 import org.onosproject.net.behaviour.PowerConfig;
+import org.onosproject.net.behaviour.RoadmFrequencyConfig;
 import org.onosproject.net.driver.AbstractHandlerBehaviour;
 
 import java.util.HashSet;
@@ -39,7 +40,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class LumentumNetconfFrequencyConfig extends AbstractHandlerBehaviour
-        implements FrequencyConfig {
+        implements RoadmFrequencyConfig {
 
     // log
     private final Logger log = getLogger(getClass());
@@ -51,12 +52,12 @@ public class LumentumNetconfFrequencyConfig extends AbstractHandlerBehaviour
         FlowRule rule;
 
         if (rules == null) {
-            log.error("Lumentum NETCONF fail to retrieve start frequency of signal {} port {}", component, port);
+            log.error("Lumentum NETCONF fail to retrieve start frequency of signal {} port {}", signal, port);
             return 0;
         } else {
             rule = rules.stream()
                     .filter(c -> ((LumentumFlowRule) c).getInputPort() == port)
-                    .filter(c -> ((LumentumFlowRule) c).ochSignal() == component)
+                    .filter(c -> ((LumentumFlowRule) c).ochSignal() == signal)
                     .findFirst()
                     .orElse(null);
         }
@@ -65,11 +66,13 @@ public class LumentumNetconfFrequencyConfig extends AbstractHandlerBehaviour
             log.error("Lumentum NETCONF fail to retrieve start frequency of signal {} port {}", signal, port);
             return 0;
         } else {
-            log.debug("Lumentum NETCONF on port {} start frequency {}", port,
-                    (((LumentumFlowRule) rule).start-freq));
-            return ((LumentumFlowRule) rule).start-freq;
+            //log.debug("Lumentum NETCONF on port {} start frequency {}", port,
+            //        (((LumentumFlowRule) rule).start-freq));
+            //return ((LumentumFlowRule) rule).start-freq;
+            log.debug("no yet implemented");
+            return 0;
         }
-        return 0;
+        //return 0;
     }
 
     public long getEndFrequency(PortNumber port, OchSignal signal) {
@@ -79,12 +82,12 @@ public class LumentumNetconfFrequencyConfig extends AbstractHandlerBehaviour
         FlowRule rule;
 
         if (rules == null) {
-            log.error("Lumentum NETCONF fail to retrieve end frequency of signal {} port {}", component, port);
+            log.error("Lumentum NETCONF fail to retrieve end frequency of signal {} port {}", signal, port);
             return 0;
         } else {
             rule = rules.stream()
                     .filter(c -> ((LumentumFlowRule) c).getInputPort() == port)
-                    .filter(c -> ((LumentumFlowRule) c).ochSignal() == component)
+                    .filter(c -> ((LumentumFlowRule) c).ochSignal() == signal)
                     .findFirst()
                     .orElse(null);
         }
@@ -93,16 +96,18 @@ public class LumentumNetconfFrequencyConfig extends AbstractHandlerBehaviour
             log.error("Lumentum NETCONF fail to retrieve end frequency of signal {} port {}", signal, port);
             return 0;
         } else {
-            log.debug("Lumentum NETCONF on port {} end frequency {}", port,
-                    (((LumentumFlowRule) rule).end-freq));
-            return ((LumentumFlowRule) rule).end-freq;
+            //log.debug("Lumentum NETCONF on port {} end frequency {}", port,
+            //        (((LumentumFlowRule) rule).end-freq));
+            //return ((LumentumFlowRule) rule).end-freq;
+            log.debug("no yet implemented");
+            return 0;
         }
-        return 0;
+        //return 0;
     }
 
 
 
-    private void setStartFrequency(PortNumber port, OchSignal signal, double startFreq) {
+    public void setStartFrequency(PortNumber port, OchSignal signal, double startFreq) {
         log.debug("Set strat-freq {} ochsignal {} port {}", startFreq, signal, port);
 
         Set<FlowRule> rules = getConnectionCache().get(did());
@@ -130,7 +135,7 @@ public class LumentumNetconfFrequencyConfig extends AbstractHandlerBehaviour
         }
     }
 
-    private void setEndFrequency(PortNumber port, OchSignal signal, double endFreq) {
+    public void setEndFrequency(PortNumber port, OchSignal signal, double endFreq) {
         log.debug("Set end-freq {} ochsignal {} port {}", endFreq, signal, port);
 
         Set<FlowRule> rules = getConnectionCache().get(did());
@@ -149,12 +154,12 @@ public class LumentumNetconfFrequencyConfig extends AbstractHandlerBehaviour
         if (rule == null) {
             log.error("Lumentum NETCONF fail to retrieve end-freq of signal {} port {}", signal, port);
         } else {
-            log.debug("Lumentum NETCONF setting end-freq {} on port {} signal {}", startFreq, port, signal);
+            log.debug("Lumentum NETCONF setting end-freq {} on port {} signal {}", endFreq, port, signal);
 
             int moduleId = ((LumentumFlowRule) rule).getConnectionModule();
             int connId = ((LumentumFlowRule) rule).getConnectionId();
 
-            editConnectionEndFreq(moduleId, connId, startFreq);
+            editConnectionEndFreq(moduleId, connId, endFreq);
         }
     }
 

@@ -49,7 +49,7 @@
                    impl="org.onosproject.net.optical.DefaultOpticalDevice"/>
         <behaviour api="org.onosproject.net.behaviour.PowerConfig"
                    impl="org.onosproject.drivers.lumentum.LumentumPowerConfig"/>
-        <behaviour api="org.onosproject.net.behaviour.FrequencyConfig"
+        <behaviour api="org.onosproject.net.behaviour.RoadmFrequencyConfig"
                    impl="org.onosproject.drivers.lumentum.LumentumNetconfFrequencyConfig"/>
     </driver>
 </drivers>
