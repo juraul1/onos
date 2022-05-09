@@ -35,10 +35,17 @@ import org.onosproject.net.OchSignalType;
 import org.onosproject.cli.net.OpticalConnectPointCompleter;
 import org.onosproject.cli.net.NetconfOperationCompleter;
 import org.onosproject.core.CoreService;
+import org.onosproject.net.ChannelSpacing;
+import org.onosproject.net.GridType;
+import org.onosproject.net.flow.criteria.Criteria;
+import org.onosproject.net.flow.instructions.Instructions;
+
 
 import java.util.Optional;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -118,8 +125,8 @@ public class RoadmFrequencyConfigCommand extends AbstractShellCommand {
              * checkNotNull) and IllegalArgumentException (thrown by checkArgument)
              * are subclasses of RuntimeException.
              */
-            String msg = String.format("Invalid signal format: %s, expected format is %s.",
-                    parameter, SIGNAL_FORMAT);
+            String msg = String.format("Invalid signal format: %s.",
+                    parameter);
             print(msg);
             throw new IllegalArgumentException(msg, e);
         }
@@ -145,13 +152,25 @@ public class RoadmFrequencyConfigCommand extends AbstractShellCommand {
         RoadmFrequencyConfig roadmfrequencyConfig = device.as(RoadmFrequencyConfig.class);
         // FIXME the parameter "component" equals NULL now, because there is one-to-one mapping between
         //  <component> and <optical-channel>.
+        //Parsing the ochSignal
+        OchSignal ochSignal;
+        if (parameter.contains("/")) {
+            ochSignal = createOchSignal();
+        } else {
+            print("[ERROR] signal or wavelength %s are in uncorrect format");
+            return;
+        }
+        if (ochSignal == null) {
+            print("[ERROR] problem while creating OchSignal");
+            return;
+        }
         if (operation.equals("get")) {
-            long startfreqval = roadmfrequencyConfig.getStartFrequency(cp.port(), ochsignal);
+            long startfreqval = roadmfrequencyConfig.getStartFrequency(cp.port(), ochSignal);
             if (startfreqval !=0) {
                 print("The start-freq value in port %s on device %s is %f.",
                         cp.port().toString(), cp.deviceId().toString(), startfreqval);
             }
-            long endfreqval = roadmfrequencyConfig.getEndFrequency(cp.port(), ochsignal);
+            long endfreqval = roadmfrequencyConfig.getEndFrequency(cp.port(), ochSignal);
             if (endfreqval !=0) {
                 print("The end-freq value in port %s on device %s is %f.",
                         cp.port().toString(), cp.deviceId().toString(), endfreqval);
@@ -159,20 +178,8 @@ public class RoadmFrequencyConfigCommand extends AbstractShellCommand {
         } else if (operation.equals("edit-config")) {
             checkNotNull(startfreq);
             checkNotNull(endfreq);
-            //Parsing the ochSignal
-            OchSignal ochSignal;
-            if (parameter.contains("/")) {
-                ochSignal = createOchSignal();
-            } else {
-                print("[ERROR] signal or wavelength %s are in uncorrect format");
-                return;
-            }
-            if (ochSignal == null) {
-                print("[ERROR] problem while creating OchSignal");
-                return;
-            }
-            roadmfrequencyConfig.setStartFrequency(cp.port(), ochsignal, startfreq);
-            roadmfrequencyConfig.setEndFrequency(cp.port(), ochsignal, endfreq);
+            roadmfrequencyConfig.setStartFrequency(cp.port(), ochSignal, startfreq);
+            roadmfrequencyConfig.setEndFrequency(cp.port(), ochSignal, endfreq);
             print("Set %f start freq and %f end freq on port", startfreq, endfreq, connectPoint);
         } else {
             print("Operation %s are not supported now.", operation);
